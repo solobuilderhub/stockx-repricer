@@ -24,6 +24,14 @@ class Settings(BaseSettings):
     # StockX API Settings (customize based on actual API)
     stockx_api_url: Optional[str] = None
     stockx_api_key: Optional[str] = None
+    stockx_client_id: Optional[str] = None
+    stockx_client_secret: Optional[str] = None
+    stockx_auth_url: Optional[str] = None
+    stockx_grant_type: Optional[str] = None
+    stockx_audience: Optional[str] = None
+    stockx_refresh_token: Optional[str] = None
+    stockx_auth_content_type: Optional[str] = None
+
 
     # Pricing Configuration
     default_margin_percentage: float = 10.0

@@ -5,7 +5,7 @@ from datetime import datetime
 from app.core.exceptions import APIClientException, DatabaseException
 from app.core.logging import LoggerMixin
 from app.repositories.pricing_repository import PricingRepository, ProductRepository
-from app.services.api_client import api_client
+from app.services.stockx.api_client import api_client
 
 
 class DataCollectionService(LoggerMixin):

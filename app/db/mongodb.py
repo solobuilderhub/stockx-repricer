@@ -51,7 +51,7 @@ class MongoDB:
             document_models: List of Beanie document model classes
         """
         try:
-            if not cls.database:
+            if cls.database is None:
                 raise RuntimeError("Database not connected. Call connect_to_database first.")
 
             await init_beanie(
@@ -69,7 +69,7 @@ class MongoDB:
     async def close_database_connection(cls) -> None:
         """Close the database connection and cleanup resources."""
         try:
-            if cls.client:
+            if cls.client is not None:
                 cls.client.close()
                 logger.info("MongoDB connection closed successfully")
 
@@ -87,7 +87,7 @@ class MongoDB:
         Raises:
             RuntimeError: If database is not connected
         """
-        if not cls.database:
+        if cls.database is None:
             raise RuntimeError("Database not connected. Call connect_to_database first.")
 
         return cls.database

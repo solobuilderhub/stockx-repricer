@@ -8,7 +8,9 @@ from app.core.logging import setup_logging, get_logger
 from app.db.mongodb import db
 from app.models.product import Product
 from app.models.historical import HistoricalPrice
-from app.api.routes import pricing, data
+from app.models.variant import Variant
+from app.api.routes import pricing, data, auth
+from app.api.routes.stockx import stockx_routes
 from app.api.middleware import logging_middleware, setup_exception_handlers
 
 # Setup logging
@@ -23,7 +25,7 @@ async def lifespan(app: FastAPI):
     logger.info("Application starting up...")
     try:
         await db.connect_to_database()
-        await db.init_beanie_models([Product, HistoricalPrice])
+        await db.init_beanie_models([Product, HistoricalPrice, Variant])
         logger.info("Database initialized successfully")
     except Exception as e:
         logger.error(f"Failed to initialize database: {str(e)}")
@@ -60,8 +62,10 @@ app.middleware("http")(logging_middleware)
 setup_exception_handlers(app)
 
 # Include routers
+app.include_router(auth.router)
 app.include_router(pricing.router)
 app.include_router(data.router)
+app.include_router(stockx_routes)
 
 
 @app.get("/")
@@ -70,7 +74,6 @@ async def root():
     return {
         "message": "Welcome to StockX Repricer API",
         "status": "online",
-        "version": settings.app_version
     }
 
 
