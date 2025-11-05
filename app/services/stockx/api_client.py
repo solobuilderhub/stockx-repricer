@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.core.exceptions import APIClientException
 from app.core.logging import LoggerMixin
 from app.services.stockx.auth_service import auth_service
+from app.schemas.stockx import CreateBatchListingsRequest, UpdateBatchListingsRequest
 
 
 class StockXAPIClient(LoggerMixin):
@@ -257,6 +258,50 @@ class StockXAPIClient(LoggerMixin):
             )
             raise
 
+    async def create_batch_listings(
+        self,
+        items: CreateBatchListingsRequest
+    ) -> Dict[str, Any]:
+        """Create batch listings in StockX selling API.
 
+        Args:
+            items: List of listings to create
+
+        Returns:
+            Batch listings data dictionary
+        """
+        self.logger.info(f"Creating batch listings: {items}")
+        endpoint = "/v2/selling/batch/create-listing"
+        try:
+            payload = items.model_dump()
+            self.logger.info(f"Payload for create batch listings: {payload}")
+            data = await self._make_request("POST", endpoint, json=payload)
+            return data
+        except Exception as e:
+            self.logger.error(f"Failed to create batch listings: {e}")
+            raise APIClientException(f"Failed to create batch listings: {e}")
+
+    async def update_batch_listings(
+        self,
+        items: UpdateBatchListingsRequest
+    ) -> Dict[str, Any]:
+        """Update batch listings in StockX selling API.
+
+        Args:
+            items: List of listings to update
+
+        Returns:
+            Batch listings data dictionary
+        """
+        self.logger.info(f"Updating batch listings: {items}")
+        endpoint = "/v2/selling/batch/update-listing"
+        try:
+            payload = items.model_dump()
+            self.logger.info(f"Payload for update batch listings: {payload}")
+            data = await self._make_request("POST", endpoint, json=payload)
+            return data
+        except Exception as e:
+            self.logger.error(f"Failed to update batch listings: {e}")
+            raise APIClientException(f"Failed to update batch listings: {e}")
 # Singleton instance
 api_client = StockXAPIClient()

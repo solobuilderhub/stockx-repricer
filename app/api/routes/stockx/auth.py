@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, status
 from app.services.stockx.auth_service import auth_service
 from app.core.exceptions import APIClientException
 
-router = APIRouter(prefix="/api/v1/auth", tags=["Stockx Authentication Routes"])
+router = APIRouter(prefix="/api/v1/stockx/auth", tags=["Stockx Authentication Routes"])
 
 
 @router.get("/test-token")

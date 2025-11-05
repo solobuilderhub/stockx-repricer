@@ -9,8 +9,8 @@ from app.db.mongodb import db
 from app.models.product import Product
 from app.models.historical import HistoricalPrice
 from app.models.variant import Variant
-from app.api.routes import pricing, data, auth
-from app.api.routes.stockx import stockx_routes
+from app.api.routes import pricing, data
+from app.api.routes.stockx import stockx_routes, auth as stockx_auth
 from app.api.middleware import logging_middleware, setup_exception_handlers
 
 # Setup logging
@@ -62,10 +62,11 @@ app.middleware("http")(logging_middleware)
 setup_exception_handlers(app)
 
 # Include routers
-app.include_router(auth.router)
-app.include_router(pricing.router)
-app.include_router(data.router)
+app.include_router(stockx_auth.router)
 app.include_router(stockx_routes)
+# app.include_router(pricing.router)
+# app.include_router(data.router)
+
 
 
 @app.get("/")

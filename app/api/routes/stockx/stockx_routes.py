@@ -8,7 +8,11 @@ from app.schemas.stockx import (
     ProductWithVariantsResponse,
     MarketDataResponse,
     ListingsResponse,
-    ListingResponse
+    ListingResponse,
+    CreateBatchListingsRequest,
+    CreateBatchListingsResponse,
+    UpdateBatchListingsRequest,
+    UpdateBatchListingsResponse
 )
 from app.services.stockx import stockx_service
 from app.core.exceptions import APIClientException
@@ -258,3 +262,45 @@ async def get_listings(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An unexpected error occurred: {str(e)}"
         )
+
+
+@router.post("/batch/listings", response_model=CreateBatchListingsResponse)
+async def create_batch_listings(
+    request: CreateBatchListingsRequest,
+    service = Depends(get_stockx_service)
+):
+    """
+    Create batch listings in StockX selling API.
+
+    Args:
+        items: List of listings to create
+
+    Returns:
+        Batch listings data dictionary
+
+    Raises:
+        500: API error or service unavailable
+    """
+    try:
+        response = await service.create_batch_listings(request)
+        return CreateBatchListingsResponse(**response)
+    except APIClientException as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+@router.patch("/batch/listings/update", response_model=UpdateBatchListingsResponse)
+async def update_batch_listings(
+    request: UpdateBatchListingsRequest,
+    service = Depends(get_stockx_service)
+):
+    """
+    Update batch listings in StockX selling API.
+    """
+    try:
+        response = await service.update_batch_listings(request)
+        return UpdateBatchListingsResponse(**response)
+    except APIClientException as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

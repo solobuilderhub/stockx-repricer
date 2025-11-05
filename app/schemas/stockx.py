@@ -246,3 +246,103 @@ class ListingsResponse(BaseModel):
                 "total_count": 3
             }
         }
+
+
+class CreateListingRequest(BaseModel):
+    """Schema for create listing request."""
+    variantId: str = Field(..., description="Variant identifier")
+    amount: str = Field(..., description="Listing amount/price")
+    currencyCode: str = Field(default="USD", description="Currency code")
+    active: bool = Field(default=True, description="Active status")
+    quantity: int = Field(default=1, description="Quantity")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "variantId": "7bd1da1c-1ebc-4d00-8bf0-a023d608e2b2",
+                "amount": "188.0",
+                "currencyCode": "USD",
+                "active": True,
+                "quantity": 1
+            }
+        }
+
+
+class CreateBatchListingsRequest(BaseModel):
+    """Schema for create batch listings request."""
+    items: List[CreateListingRequest] = Field(..., description="List of listings")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "items": [
+                    {
+                        "variantId": "7bd1da1c-1ebc-4d00-8bf0-a023d608e2b2",
+                        "amount": "188.0",
+                        "currencyCode": "USD",
+                        "active": True,
+                        "quantity": 1 
+                    }
+                ]
+            }
+        }
+
+class CreateBatchListingsResponse(BaseModel):
+    """Schema for create batch listings response."""
+    batch_id: str = Field(..., description="Batch identifier")
+    status: str = Field(..., description="Status")
+    total_items: int = Field(..., description="Total items")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "batch_id": "35bf0c79-ae48-44de-85d8-7ba16b8fb54d",
+                "status": "COMPLETED",
+                "total_items": 1
+            }
+        }
+
+
+class UpdateListingRequest(BaseModel):
+    """Schema for update listing request."""
+    listingId: str = Field(..., description="Listing identifier")
+    amount: str = Field(..., description="Listing amount/price")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "listingId": "b541cad1-a607-4cba-996b-20e99f81706c",
+                "amount": "188.0",
+            }
+        }
+
+class UpdateBatchListingsRequest(BaseModel):
+    """Schema for update batch listings request."""
+    items: List[UpdateListingRequest] = Field(..., description="List of listings")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "items": [
+                    {
+                        "listingId": "b541cad1-a607-4cba-996b-20e99f81706c",
+                        "amount": "188.0",
+                    }
+                ]
+            }
+        }
+    
+class UpdateBatchListingsResponse(BaseModel):
+    """Schema for update batch listings response."""
+    batch_id: str = Field(..., description="Batch identifier")
+    status: str = Field(..., description="Status")
+    total_items: int = Field(..., description="Total items")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "batch_id": "35bf0c79-ae48-44de-85d8-7ba16b8fb54d",
+                "status": "COMPLETED",
+                "total_items": 1
+            }
+        }

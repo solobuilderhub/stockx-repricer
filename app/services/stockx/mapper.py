@@ -273,3 +273,23 @@ class StockXMapper:
             if gtin.get("type") == "UPC":
                 return gtin.get("identifier")
         return None
+
+    @staticmethod
+    def to_create_batch_listings_response(api_response: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Transform StockX create batch listings API response to structured dictionary.
+
+        Args:
+            api_response: Raw API response containing create batch listings data
+
+        Returns:
+            Dictionary with create batch listings data
+        """
+        try:
+            return {
+                "batch_id": api_response.get("batchId"),
+                "status": api_response.get("status"),
+                "total_items": api_response.get("totalItems")
+            }
+        except Exception as e:
+            raise APIClientException(f"Error transforming create batch listings data: {e}")
