@@ -46,8 +46,8 @@ async def get_product(
     try:
         product = await service.get_product(search_param)
 
-        # Product is now a dictionary, Pydantic will validate it
-        return ProductResponse(**product)
+        # Convert domain model to response schema using to_dict()
+        return ProductResponse(**product.to_dict())
 
     except APIClientException as e:
         if "No products found" in str(e):
@@ -86,8 +86,8 @@ async def get_variants(
     try:
         variants = await service.get_variants(product_id)
 
-        # Variants are now dictionaries, Pydantic will validate them
-        return [VariantResponse(**variant) for variant in variants]
+        # Convert domain models to response schemas using to_dict()
+        return [VariantResponse(**variant.to_dict()) for variant in variants]
 
     except APIClientException as e:
         raise HTTPException(
@@ -125,10 +125,10 @@ async def get_product_with_variants(
     try:
         product, variants = await service.get_product_with_variants(search_param)
 
-        # Product and variants are now dictionaries, Pydantic will validate them
+        # Convert domain models to response schemas using to_dict()
         return ProductWithVariantsResponse(
-            product=ProductResponse(**product),
-            variants=[VariantResponse(**variant) for variant in variants]
+            product=ProductResponse(**product.to_dict()),
+            variants=[VariantResponse(**variant.to_dict()) for variant in variants]
         )
 
     except APIClientException as e:
@@ -180,8 +180,8 @@ async def get_market_data(
     try:
         market_data = await service.get_market_data(product_id, variant_id, currency_code)
 
-        # Market data is a dictionary, Pydantic will validate it
-        return MarketDataResponse(**market_data)
+        # Convert domain model to response schema using to_dict()
+        return MarketDataResponse(**market_data.to_dict())
 
     except APIClientException as e:
         raise HTTPException(
@@ -239,8 +239,8 @@ async def get_listings(
             fetch_all_pages=True
         )
 
-        # Convert to response schema
-        listing_responses = [ListingResponse(**listing) for listing in listings]
+        # Convert domain models to response schemas using to_dict()
+        listing_responses = [ListingResponse(**listing.to_dict()) for listing in listings]
 
         return ListingsResponse(
             listings=listing_responses,

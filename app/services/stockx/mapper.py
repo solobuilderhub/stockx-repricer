@@ -1,25 +1,43 @@
 """
 StockX API response mapper.
-Transforms raw API responses into structured dictionaries.
+Transforms raw API responses into domain models.
 """
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
+from decimal import Decimal
 from app.core.exceptions import APIClientException
+from app.domain import (
+    Product,
+    Variant,
+    Listing,
+    MarketData,
+    ProductFactory,
+    VariantFactory,
+    ListingFactory,
+    MarketDataFactory,
+    Money,
+    ProductId,
+    VariantId,
+    StyleId,
+    UPC,
+    ListingStatus,
+    InventoryType
+)
 
 
 class StockXMapper:
-    """Maps StockX API responses to structured dictionaries."""
+    """Maps StockX API responses to domain models."""
 
     @staticmethod
-    def to_product(api_response: Dict[str, Any]) -> Dict[str, Any]:
+    def to_product(api_response: Dict[str, Any]) -> Product:
         """
-        Transform StockX product API response to structured product dictionary.
+        Transform StockX product API response to Product domain model.
 
         Args:
             api_response: Raw API response containing products array
 
         Returns:
-            Dictionary with product data
+            Product domain model instance
 
         Raises:
             APIClientException: If required fields are missing or response is invalid
@@ -36,35 +54,20 @@ class StockXMapper:
             # Extract product attributes
             product_attrs = product_data.get("productAttributes", {})
 
-            # Parse release date if present
-            release_date = None
-            if product_attrs.get("releaseDate"):
-                try:
-                    release_date = datetime.fromisoformat(product_attrs["releaseDate"])
-                except (ValueError, TypeError):
-                    # If date parsing fails, leave as None
-                    pass
-
-            # Get retail price
-            retail_price = product_attrs.get("retailPrice")
-            if retail_price is not None:
-                retail_price = float(retail_price)
-
-            # Create product dictionary
-            now = datetime.utcnow()
-            product = {
+            # Prepare data dictionary for factory
+            factory_data = {
                 "product_id": product_data["productId"],
                 "title": product_data["title"],
                 "brand": product_data["brand"],
                 "product_type": product_data.get("productType"),
                 "style_id": product_data["styleId"],
                 "url_key": product_data.get("urlKey"),
-                "retail_price": retail_price,
-                "release_date": release_date,
-                "created_at": now,
-                "updated_at": now
+                "retail_price": product_attrs.get("retailPrice"),
+                "release_date": product_attrs.get("releaseDate"),
             }
 
+            # Use factory to create domain model
+            product = ProductFactory.from_stockx_api(factory_data)
             return product
 
         except KeyError as e:
@@ -73,15 +76,15 @@ class StockXMapper:
             raise APIClientException(f"Error transforming product data: {e}")
 
     @staticmethod
-    def to_variant(variant_data: Dict[str, Any]) -> Dict[str, Any]:
+    def to_variant(variant_data: Dict[str, Any]) -> Variant:
         """
-        Transform StockX variant API response to structured variant dictionary.
+        Transform StockX variant API response to Variant domain model.
 
         Args:
             variant_data: Raw variant data from API
 
         Returns:
-            Dictionary with variant data
+            Variant domain model instance
 
         Raises:
             APIClientException: If required fields are missing
@@ -95,18 +98,17 @@ class StockXMapper:
                     upc = gtin.get("identifier")
                     break
 
-            # Create variant dictionary
-            now = datetime.utcnow()
-            variant = {
+            # Prepare data dictionary for factory
+            factory_data = {
                 "variant_id": variant_data["variantId"],
                 "product_id": variant_data["productId"],
                 "variant_name": variant_data["variantName"],
                 "variant_value": variant_data["variantValue"],
                 "upc": upc,
-                "created_at": now,
-                "updated_at": now
             }
 
+            # Use factory to create domain model
+            variant = VariantFactory.from_stockx_api(factory_data)
             return variant
 
         except KeyError as e:
@@ -115,86 +117,37 @@ class StockXMapper:
             raise APIClientException(f"Error transforming variant data: {e}")
 
     @staticmethod
-    def to_market_data(market_data_response: Dict[str, Any]) -> Dict[str, Any]:
+    def to_market_data(market_data_response: Dict[str, Any]) -> MarketData:
         """
-        Transform StockX market data API response to structured dictionary.
+        Transform StockX market data API response to MarketData domain model.
 
         Args:
             market_data_response: Raw market data from API
 
         Returns:
-            Dictionary with market data including standard, flex, and direct market data
+            MarketData domain model instance (immutable value object)
 
         Raises:
             APIClientException: If response is invalid
         """
         try:
-            now = datetime.utcnow()
-
-            # Extract nested market data objects
-            standard_market_data = market_data_response.get("standardMarketData", {})
-            flex_market_data = market_data_response.get("flexMarketData", {})
-            direct_market_data = market_data_response.get("directMarketData", {})
-
-            # Helper to convert string prices to float
-            def to_float(value):
-                if value is None:
-                    return None
-                try:
-                    return float(value)
-                except (ValueError, TypeError):
-                    return None
-
-            market_data = {
-                "product_id": market_data_response.get("productId"),
-                "variant_id": market_data_response.get("variantId"),
-                "currency_code": market_data_response.get("currencyCode"),
-                "highest_bid_amount": to_float(market_data_response.get("highestBidAmount")),
-                "lowest_ask_amount": to_float(market_data_response.get("lowestAskAmount")),
-                "flex_lowest_ask_amount": to_float(market_data_response.get("flexLowestAskAmount")),
-                "earn_more_amount": to_float(market_data_response.get("earnMoreAmount")),
-                "sell_faster_amount": to_float(market_data_response.get("sellFasterAmount")),
-
-                # Standard market data
-                "standard_lowest_ask": to_float(standard_market_data.get("lowestAsk")),
-                "standard_highest_bid": to_float(standard_market_data.get("highestBidAmount")),
-                "standard_sell_faster": to_float(standard_market_data.get("sellFaster")),
-                "standard_earn_more": to_float(standard_market_data.get("earnMore")),
-                "standard_beat_us": to_float(standard_market_data.get("beatUS")),
-
-                # Flex market data
-                "flex_lowest_ask": to_float(flex_market_data.get("lowestAsk")),
-                "flex_highest_bid": to_float(flex_market_data.get("highestBidAmount")),
-                "flex_sell_faster": to_float(flex_market_data.get("sellFaster")),
-                "flex_earn_more": to_float(flex_market_data.get("earnMore")),
-                "flex_beat_us": to_float(flex_market_data.get("beatUS")),
-
-                # Direct market data
-                "direct_lowest_ask": to_float(direct_market_data.get("lowestAsk")),
-                "direct_highest_bid": to_float(direct_market_data.get("highestBidAmount")),
-                "direct_sell_faster": to_float(direct_market_data.get("sellFaster")),
-                "direct_earn_more": to_float(direct_market_data.get("earnMore")),
-                "direct_beat_us": to_float(direct_market_data.get("beatUS")),
-
-                "created_at": now,
-                "updated_at": now
-            }
-
+            # Use factory to create domain model
+            market_data = MarketDataFactory.from_stockx_api(market_data_response)
             return market_data
 
         except Exception as e:
             raise APIClientException(f"Error transforming market data: {e}")
 
     @staticmethod
-    def to_listing(listing_data: Dict[str, Any]) -> Dict[str, Any]:
+    def to_listing(listing_data: Dict[str, Any]) -> Listing:
         """
-        Transform a single StockX listing to structured dictionary.
+        Transform a single StockX listing to Listing domain model.
 
         Args:
             listing_data: Raw listing data from API
 
         Returns:
-            Dictionary with listing data
+            Listing domain model instance
 
         Raises:
             APIClientException: If required fields are missing
@@ -209,24 +162,16 @@ class StockXMapper:
                 except (ValueError, TypeError, AttributeError):
                     return None
 
-            # Helper to convert string prices to float
-            def to_float(value):
-                if value is None:
-                    return None
-                try:
-                    return float(value)
-                except (ValueError, TypeError):
-                    return None
-
             ask = listing_data.get("ask", {})
             product = listing_data.get("product", {})
             variant = listing_data.get("variant", {})
             batch = listing_data.get("batch", {})
 
-            listing_dict = {
+            # Prepare data dictionary for factory
+            factory_data = {
                 "listing_id": listing_data.get("listingId"),
-                "amount": to_float(listing_data.get("amount")),
-                "currency_code": listing_data.get("currencyCode"),
+                "amount": listing_data.get("amount"),
+                "currency_code": listing_data.get("currencyCode", "USD"),
                 "status": listing_data.get("status"),
                 "inventory_type": listing_data.get("inventoryType"),
                 "created_at": to_datetime(listing_data.get("createdAt")),
@@ -253,7 +198,9 @@ class StockXMapper:
                 "task_id": batch.get("taskId"),
             }
 
-            return listing_dict
+            # Use factory to create domain model
+            listing = ListingFactory.from_stockx_api(factory_data)
+            return listing
 
         except Exception as e:
             raise APIClientException(f"Error transforming listing data: {e}")

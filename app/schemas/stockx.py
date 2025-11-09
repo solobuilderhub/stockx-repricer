@@ -257,6 +257,7 @@ class CreateListingRequest(BaseModel):
     quantity: int = Field(default=1, description="Quantity")
 
     class Config:
+        populate_by_name = True
         json_schema_extra = {
             "example": {
                 "variantId": "7bd1da1c-1ebc-4d00-8bf0-a023d608e2b2",
@@ -271,8 +272,9 @@ class CreateListingRequest(BaseModel):
 class CreateBatchListingsRequest(BaseModel):
     """Schema for create batch listings request."""
     items: List[CreateListingRequest] = Field(..., description="List of listings")
-    
+
     class Config:
+        populate_by_name = True
         json_schema_extra = {
             "example": {
                 "items": [
@@ -309,6 +311,7 @@ class UpdateListingRequest(BaseModel):
     amount: str = Field(..., description="Listing amount/price")
 
     class Config:
+        populate_by_name = True
         json_schema_extra = {
             "example": {
                 "listingId": "b541cad1-a607-4cba-996b-20e99f81706c",
@@ -321,6 +324,7 @@ class UpdateBatchListingsRequest(BaseModel):
     items: List[UpdateListingRequest] = Field(..., description="List of listings")
 
     class Config:
+        populate_by_name = True
         json_schema_extra = {
             "example": {
                 "items": [

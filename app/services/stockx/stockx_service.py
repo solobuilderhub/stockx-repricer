@@ -1,6 +1,6 @@
 """
 StockX Service Wrapper.
-Orchestrates API calls and transforms responses into structured data.
+Orchestrates API calls and transforms responses into domain models.
 """
 from typing import List, Tuple, Dict, Any, Optional
 from app.services.stockx.api_client import api_client
@@ -9,14 +9,15 @@ from app.core.logging import LoggerMixin
 from app.core.exceptions import APIClientException
 from app.schemas.stockx import CreateBatchListingsRequest
 from app.schemas.stockx import UpdateBatchListingsRequest
+from app.domain import Product, Variant, Listing, MarketData
 
 class StockXService(LoggerMixin):
     """
-    Wrapper service that transforms StockX API responses into structured data.
+    Wrapper service that transforms StockX API responses into domain models.
 
     This service acts as a facade between the raw API client and your application,
-    providing a clean interface that returns structured dictionaries that can be used
-    to create domain models or API responses.
+    providing a clean interface that returns domain models for use throughout
+    the application.
     """
 
     def __init__(self):
@@ -24,15 +25,15 @@ class StockXService(LoggerMixin):
         self.api_client = api_client
         self.mapper = StockXMapper()
 
-    async def get_product(self, search_param: str) -> Dict[str, Any]:
+    async def get_product(self, search_param: str) -> Product:
         """
-        Fetch product data from StockX API and transform to structured data.
+        Fetch product data from StockX API and transform to Product domain model.
 
         Args:
             search_param: Style ID or UPC to search for
 
         Returns:
-            Dictionary with product data
+            Product domain model instance
 
         Raises:
             APIClientException: If API call fails or no products found
@@ -43,11 +44,11 @@ class StockXService(LoggerMixin):
             # Fetch raw data from API
             api_response = await self.api_client.fetch_product_data(search_param)
 
-            # Transform to structured data
+            # Transform to domain model
             product = self.mapper.to_product(api_response)
 
             self.logger.info(
-                f"Successfully fetched and transformed product: {product['product_id']} - {product['title']}"
+                f"Successfully fetched and transformed product: {product.product_id.value} - {product.title}"
             )
 
             return product
@@ -59,15 +60,15 @@ class StockXService(LoggerMixin):
             self.logger.error(f"Unexpected error fetching product {search_param}: {e}")
             raise APIClientException(f"Failed to fetch product: {e}")
 
-    async def get_variants(self, product_id: str) -> List[Dict[str, Any]]:
+    async def get_variants(self, product_id: str) -> List[Variant]:
         """
-        Fetch variant data from StockX API and transform to structured data.
+        Fetch variant data from StockX API and transform to Variant domain models.
 
         Args:
             product_id: The StockX product ID
 
         Returns:
-            List of variant dictionaries
+            List of Variant domain model instances
 
         Raises:
             APIClientException: If API call fails
@@ -82,7 +83,7 @@ class StockXService(LoggerMixin):
             if not isinstance(api_response, list):
                 raise APIClientException("Expected variant API response to be a list")
 
-            # Transform each variant to structured data
+            # Transform each variant to domain model
             variants = [self.mapper.to_variant(variant_data) for variant_data in api_response]
 
             self.logger.info(
@@ -98,7 +99,7 @@ class StockXService(LoggerMixin):
             self.logger.error(f"Unexpected error fetching variants for {product_id}: {e}")
             raise APIClientException(f"Failed to fetch variants: {e}")
 
-    async def get_product_with_variants(self, search_param: str) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    async def get_product_with_variants(self, search_param: str) -> Tuple[Product, List[Variant]]:
         """
         Fetch both product and its variants in one operation.
 
@@ -109,7 +110,7 @@ class StockXService(LoggerMixin):
             search_param: Style ID or UPC to search for
 
         Returns:
-            Tuple of (product_dict, list of variant_dicts)
+            Tuple of (Product domain model, list of Variant domain models)
 
         Raises:
             APIClientException: If either API call fails
@@ -121,10 +122,10 @@ class StockXService(LoggerMixin):
             product = await self.get_product(search_param)
 
             # Fetch variants using product_id
-            variants = await self.get_variants(product['product_id'])
+            variants = await self.get_variants(product.product_id.value)
 
             self.logger.info(
-                f"Successfully fetched product {product['product_id']} with {len(variants)} variants"
+                f"Successfully fetched product {product.product_id.value} with {len(variants)} variants"
             )
 
             return product, variants
@@ -143,7 +144,7 @@ class StockXService(LoggerMixin):
         product_id: str,
         variant_id: str,
         currency_code: str = "USD"
-    ) -> Dict[str, Any]:
+    ) -> MarketData:
         """
         Fetch market data for a specific product variant.
 
@@ -153,7 +154,7 @@ class StockXService(LoggerMixin):
             currency_code: Currency code for pricing (default: USD)
 
         Returns:
-            Dictionary with market data including bids, asks, and different market types
+            MarketData domain model instance (immutable value object)
 
         Raises:
             APIClientException: If API call fails
@@ -168,7 +169,7 @@ class StockXService(LoggerMixin):
                 product_id, variant_id, currency_code
             )
 
-            # Transform to structured data
+            # Transform to domain model
             market_data = self.mapper.to_market_data(api_response)
 
             self.logger.info(
@@ -195,7 +196,7 @@ class StockXService(LoggerMixin):
         from_date: Optional[str] = None,
         listing_status: str = "ACTIVE",
         fetch_all_pages: bool = True
-    ) -> List[Dict[str, Any]]:
+    ) -> List[Listing]:
         """
         Fetch listings from StockX selling API with automatic pagination.
 
@@ -207,7 +208,7 @@ class StockXService(LoggerMixin):
             fetch_all_pages: If True, automatically fetches all pages (default: True)
 
         Returns:
-            List of listing dictionaries
+            List of Listing domain model instances
 
         Raises:
             APIClientException: If API call fails
@@ -237,11 +238,11 @@ class StockXService(LoggerMixin):
                     listing_status=listing_status
                 )
 
-                # Transform each listing
+                # Transform each listing to domain model
                 listings = api_response.get("listings", [])
                 for listing_data in listings:
-                    listing_dict = self.mapper.to_listing(listing_data)
-                    all_listings.append(listing_dict)
+                    listing = self.mapper.to_listing(listing_data)
+                    all_listings.append(listing)
 
                 self.logger.info(
                     f"Fetched page {page_number}: {len(listings)} listings "
