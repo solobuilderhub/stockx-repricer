@@ -76,6 +76,48 @@ class StockXMapper:
             raise APIClientException(f"Error transforming product data: {e}")
 
     @staticmethod
+    def to_product_from_single_response(api_response: Dict[str, Any]) -> Product:
+        """
+        Transform single product API response to Product domain model.
+
+        This method handles the response from /v2/catalog/products/{productId} endpoint,
+        which returns a single product object directly (not in a products array).
+
+        Args:
+            api_response: Raw API response for a single product
+
+        Returns:
+            Product domain model instance
+
+        Raises:
+            APIClientException: If required fields are missing or response is invalid
+        """
+        try:
+            # Extract product attributes
+            product_attrs = api_response.get("productAttributes", {})
+
+            # Prepare data dictionary for factory
+            factory_data = {
+                "product_id": api_response["productId"],
+                "title": api_response["title"],
+                "brand": api_response["brand"],
+                "product_type": api_response.get("productType"),
+                "style_id": api_response["styleId"],
+                "url_key": api_response.get("urlKey"),
+                "retail_price": product_attrs.get("retailPrice"),
+                "release_date": product_attrs.get("releaseDate"),
+            }
+
+            # Use factory to create domain model
+            product = ProductFactory.from_stockx_api(factory_data)
+            return product
+
+        except KeyError as e:
+            raise APIClientException(f"Missing required field in product API response: {e}")
+        except Exception as e:
+            raise APIClientException(f"Error transforming product data: {e}")
+
+    @staticmethod
     def to_variant(variant_data: Dict[str, Any]) -> Variant:
         """
         Transform StockX variant API response to Variant domain model.

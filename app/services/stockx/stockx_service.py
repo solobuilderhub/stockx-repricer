@@ -60,6 +60,81 @@ class StockXService(LoggerMixin):
             self.logger.error(f"Unexpected error fetching product {search_param}: {e}")
             raise APIClientException(f"Failed to fetch product: {e}")
 
+    async def get_product_by_id(self, product_id: str) -> Product:
+        """
+        Fetch product data by product ID from StockX API and transform to Product domain model.
+
+        Args:
+            product_id: StockX product UUID
+
+        Returns:
+            Product domain model instance
+
+        Raises:
+            APIClientException: If API call fails
+        """
+        self.logger.info(f"Fetching product by ID: {product_id}")
+
+        try:
+            # Fetch raw data from API
+            api_response = await self.api_client.fetch_product_by_id(product_id)
+
+            # Transform to domain model using single response mapper
+            product = self.mapper.to_product_from_single_response(api_response)
+
+            self.logger.info(
+                f"Successfully fetched product {product_id}: {product.title}"
+            )
+
+            return product
+
+        except APIClientException as e:
+            self.logger.error(f"Failed to fetch product {product_id}: {e}")
+            raise
+        except Exception as e:
+            self.logger.error(f"Unexpected error fetching product {product_id}: {e}")
+            raise APIClientException(f"Failed to fetch product: {e}")
+
+    async def get_variant(self, variant_id: str, product_id: str = None) -> Variant:
+        """
+        Fetch a single variant data from StockX API and transform to Variant domain model.
+
+        Args:
+            variant_id: The StockX variant ID
+            product_id: The StockX product ID (required for API call)
+
+        Returns:
+            Variant domain model instance
+
+        Raises:
+            APIClientException: If API call fails
+            ValueError: If product_id is not provided
+        """
+        if not product_id:
+            raise ValueError("product_id is required to fetch variant data")
+
+        self.logger.info(f"Fetching variant {variant_id} for product {product_id}")
+
+        try:
+            # Fetch raw data from API
+            api_response = await self.api_client.fetch_single_variant(product_id, variant_id)
+
+            # Transform to domain model using mapper
+            variant = self.mapper.to_variant(api_response)
+
+            self.logger.info(
+                f"Successfully fetched variant {variant_id}: {variant.variant_name}"
+            )
+
+            return variant
+
+        except APIClientException as e:
+            self.logger.error(f"Failed to fetch variant {variant_id}: {e}")
+            raise
+        except Exception as e:
+            self.logger.error(f"Unexpected error fetching variant {variant_id}: {e}")
+            raise APIClientException(f"Failed to fetch variant: {e}")
+
     async def get_variants(self, product_id: str) -> List[Variant]:
         """
         Fetch variant data from StockX API and transform to Variant domain models.

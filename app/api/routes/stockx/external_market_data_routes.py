@@ -13,7 +13,7 @@ from app.schemas.stockx import (
 from app.services.external_stockx import external_stockx_service
 from app.core.exceptions import APIClientException
 
-router = APIRouter()
+router = APIRouter(prefix="/api/stockx/external", tags=["Stockx External Market Data"])
 
 
 def get_external_stockx_service():

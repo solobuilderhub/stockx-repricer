@@ -107,7 +107,7 @@ class StockXAPIClient(LoggerMixin):
             raise APIClientException(f"API request failed: {str(e)}")
 
     async def fetch_product_data(self, search_param: str) -> Dict[str, Any]:
-        """Fetch product information from the API.
+        """Fetch product information from the API by search query.
 
         Args:
             search_param: Product identifier -> style id, upc
@@ -128,6 +128,44 @@ class StockXAPIClient(LoggerMixin):
             self.logger.warning(f"Failed to fetch product data for {search_param}")
             raise
 
+    async def fetch_product_by_id(self, product_id: str) -> Dict[str, Any]:
+        """Fetch a single product by product ID.
+
+        Args:
+            product_id: StockX Product identifier (UUID)
+
+        Returns:
+            Single product data dictionary
+
+        Example response:
+            {
+                "productId": "73e10325-c58f-419c-b7df-81142f77d154",
+                "brand": "Nike",
+                "productType": "sneakers",
+                "styleId": "DO6716-700",
+                "urlKey": "nike-air-max-pre-day-optimism-w",
+                "title": "Nike Air Max Pre-Day Optimism (Women's)",
+                "productAttributes": {
+                    "color": null,
+                    "colorway": "Wheat/Yellow Strike-Red Plum-Orange",
+                    "gender": "women",
+                    "releaseDate": "2020-12-11",
+                    "retailPrice": 140,
+                    "season": null
+                }
+            }
+        """
+        self.logger.info(f"Fetching product by ID: {product_id}")
+
+        endpoint = f"/v2/catalog/products/{product_id}"
+
+        try:
+            data = await self._make_request("GET", endpoint)
+            return data
+        except APIClientException:
+            self.logger.warning(f"Failed to fetch product {product_id}")
+            raise
+
     async def fetch_variant_data(self, product_id: str) -> Dict[str, Any]:
         """Fetch variant information from the API.
 
@@ -146,6 +184,41 @@ class StockXAPIClient(LoggerMixin):
             return data
         except APIClientException:
             self.logger.warning(f"Failed to fetch variant data for {product_id}")
+            raise
+
+    async def fetch_single_variant(self, product_id: str, variant_id: str) -> Dict[str, Any]:
+        """Fetch a single variant by product ID and variant ID.
+
+        Args:
+            product_id: StockX Product identifier
+            variant_id: StockX Variant identifier
+
+        Returns:
+            Single variant data dictionary
+
+        Example response:
+            {
+                "productId": "bf364c53-eb77-4522-955c-6a6ce952cc6f",
+                "variantId": "586c3334-4dac-4ee0-bce3-eea845581a08",
+                "variantName": "Auston-Matthews-2016-Upper-Deck-Series-1-Young-Guns-Rookie-201:0",
+                "variantValue": "PSA 10",
+                "sizeChart": {...},
+                "gtins": [...],
+                "isFlexEligible": true,
+                "isDirectEligible": false
+            }
+        """
+        self.logger.info(f"Fetching single variant: product={product_id}, variant={variant_id}")
+
+        endpoint = f"/v2/catalog/products/{product_id}/variants/{variant_id}"
+
+        try:
+            data = await self._make_request("GET", endpoint)
+            return data
+        except APIClientException:
+            self.logger.warning(
+                f"Failed to fetch variant {variant_id} for product {product_id}"
+            )
             raise
 
     async def fetch_market_data(
