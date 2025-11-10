@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     stockx_refresh_token: Optional[str] = None
     stockx_auth_content_type: Optional[str] = None
 
+    # External StockX Market Data API Settings
+    external_stockx_api_token: Optional[str] = None
+
 
     # Pricing Configuration
     default_margin_percentage: float = 10.0

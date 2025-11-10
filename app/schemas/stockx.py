@@ -350,3 +350,200 @@ class UpdateBatchListingsResponse(BaseModel):
                 "total_items": 1
             }
         }
+
+
+# External Market Data Schemas
+
+class SaleResponse(BaseModel):
+    """Schema for a single sale from external API."""
+    amount: float = Field(..., description="Sale price")
+    currency_code: str = Field(..., description="Currency code (e.g., USD)")
+    created_at: datetime = Field(..., description="When the sale occurred")
+    product_id: str = Field(..., description="Product or variant ID")
+    is_variant: bool = Field(..., description="Whether product_id is a variant ID")
+    size: Optional[str] = Field(None, description="Size of the item sold")
+    order_type: Optional[str] = Field(None, description="Order type (STANDARD, etc.)")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "amount": 250.0,
+                "currency_code": "USD",
+                "created_at": "2025-10-31T17:10:07.989Z",
+                "product_id": "fa6fd951-9012-43e4-b65e-a7ed9a2da1cf",
+                "is_variant": True,
+                "size": "9",
+                "order_type": "STANDARD"
+            }
+        }
+
+
+class SalesResponse(BaseModel):
+    """Schema for sales list response."""
+    sales: List[SaleResponse] = Field(..., description="List of sales")
+    total_count: int = Field(..., description="Total number of sales")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "sales": [
+                    {
+                        "amount": 250.0,
+                        "currency_code": "USD",
+                        "created_at": "2025-10-31T17:10:07.989Z",
+                        "product_id": "fa6fd951-9012-43e4-b65e-a7ed9a2da1cf",
+                        "is_variant": True,
+                        "size": "9",
+                        "order_type": "STANDARD"
+                    }
+                ],
+                "total_count": 10
+            }
+        }
+
+
+class BidResponse(BaseModel):
+    """Schema for a single bid from external API."""
+    amount: float = Field(..., description="Bid price")
+    currency_code: str = Field(..., description="Currency code (e.g., USD)")
+    count: int = Field(..., ge=0, description="Number of bids at this price level")
+    own_count: int = Field(..., ge=0, description="Number of user's own bids at this price level")
+    product_id: str = Field(..., description="Product or variant ID")
+    is_variant: bool = Field(..., description="Whether product_id is a variant ID")
+    size: Optional[str] = Field(None, description="Size of the item")
+    available_for_flex: bool = Field(False, description="Whether bid is available for flex fulfillment")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "amount": 147.0,
+                "currency_code": "USD",
+                "count": 1,
+                "own_count": 0,
+                "product_id": "fa6fd951-9012-43e4-b65e-a7ed9a2da1cf",
+                "is_variant": True,
+                "size": "9",
+                "available_for_flex": False
+            }
+        }
+
+
+class BidsResponse(BaseModel):
+    """Schema for bids list response."""
+    bids: List[BidResponse] = Field(..., description="List of bids")
+    total_count: int = Field(..., description="Total number of bid price levels")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "bids": [
+                    {
+                        "amount": 147.0,
+                        "currency_code": "USD",
+                        "count": 1,
+                        "own_count": 0,
+                        "product_id": "fa6fd951-9012-43e4-b65e-a7ed9a2da1cf",
+                        "is_variant": True,
+                        "size": "9",
+                        "available_for_flex": False
+                    }
+                ],
+                "total_count": 4
+            }
+        }
+
+
+class AskResponse(BaseModel):
+    """Schema for a single ask from external API."""
+    amount: float = Field(..., description="Ask price")
+    currency_code: str = Field(..., description="Currency code (e.g., USD)")
+    count: int = Field(..., ge=0, description="Number of asks at this price level")
+    own_count: int = Field(..., ge=0, description="Number of user's own asks at this price level")
+    product_id: str = Field(..., description="Product or variant ID")
+    is_variant: bool = Field(..., description="Whether product_id is a variant ID")
+    size: Optional[str] = Field(None, description="Size of the item")
+    available_for_flex: bool = Field(False, description="Whether ask is available for flex fulfillment")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "amount": 250.0,
+                "currency_code": "USD",
+                "count": 1,
+                "own_count": 0,
+                "product_id": "fa6fd951-9012-43e4-b65e-a7ed9a2da1cf",
+                "is_variant": True,
+                "size": "9",
+                "available_for_flex": False
+            }
+        }
+
+
+class AsksResponse(BaseModel):
+    """Schema for asks list response."""
+    asks: List[AskResponse] = Field(..., description="List of asks")
+    total_count: int = Field(..., description="Total number of ask price levels")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "asks": [
+                    {
+                        "amount": 250.0,
+                        "currency_code": "USD",
+                        "count": 1,
+                        "own_count": 0,
+                        "product_id": "fa6fd951-9012-43e4-b65e-a7ed9a2da1cf",
+                        "is_variant": True,
+                        "size": "9",
+                        "available_for_flex": False
+                    }
+                ],
+                "total_count": 3
+            }
+        }
+
+
+class HistoricalSaleResponse(BaseModel):
+    """Schema for a single historical sales data point from external API."""
+    date: datetime = Field(..., description="Timestamp of the data point")
+    price: float = Field(..., description="Sale price at this timestamp")
+    product_id: str = Field(..., description="Product or variant ID")
+    is_variant: bool = Field(..., description="Whether product_id is a variant ID")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "date": "2024-10-12T23:59:54.000Z",
+                "price": 203.0,
+                "product_id": "fa6fd951-9012-43e4-b65e-a7ed9a2da1cf",
+                "is_variant": True
+            }
+        }
+
+
+class HistoricalSalesResponse(BaseModel):
+    """Schema for historical sales list response."""
+    historical_sales: List[HistoricalSaleResponse] = Field(..., description="List of historical sales data points")
+    total_count: int = Field(..., description="Total number of data points")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "historical_sales": [
+                    {
+                        "date": "2023-03-17T00:00:00.000Z",
+                        "price": 271.0,
+                        "product_id": "fa6fd951-9012-43e4-b65e-a7ed9a2da1cf",
+                        "is_variant": True
+                    },
+                    {
+                        "date": "2024-10-12T23:59:54.000Z",
+                        "price": 203.0,
+                        "product_id": "fa6fd951-9012-43e4-b65e-a7ed9a2da1cf",
+                        "is_variant": True
+                    }
+                ],
+                "total_count": 10
+            }
+        }

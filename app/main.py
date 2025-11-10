@@ -10,7 +10,7 @@ from app.models.product import Product
 from app.models.historical import HistoricalPrice
 from app.models.variant import Variant
 from app.api.routes import pricing, data
-from app.api.routes.stockx import stockx_routes, auth as stockx_auth
+from app.api.routes.stockx import stockx_routes, auth as stockx_auth, external_market_data_routes
 from app.api.middleware import logging_middleware, setup_exception_handlers
 
 # Setup logging
@@ -64,6 +64,7 @@ setup_exception_handlers(app)
 # Include routers
 app.include_router(stockx_auth.router)
 app.include_router(stockx_routes)
+app.include_router(external_market_data_routes, prefix="/api/stockx/external", tags=["Stockx External Market Data"])
 # app.include_router(pricing.router)
 # app.include_router(data.router)
 
