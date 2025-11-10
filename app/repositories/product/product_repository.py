@@ -1,5 +1,5 @@
 """Product repository for database operations."""
-from typing import Optional
+from typing import Optional, List
 from app.repositories.base import BaseRepository
 from app.models.product import Product
 from app.core.logging import LoggerMixin

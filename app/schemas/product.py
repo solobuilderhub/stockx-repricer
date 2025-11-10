@@ -223,3 +223,96 @@ class CreateProductWithVariantsResponse(BaseModel):
                 ]
             }
         }
+
+
+class ProductWithVariantsResponse(BaseModel):
+    """Schema for product with its variants."""
+    product: ProductResponseSchema = Field(..., description="Product data")
+    variants: List[VariantResponseSchema] = Field(..., description="List of variants for this product")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "product": {
+                    "id": "507f1f77bcf86cd799439011",
+                    "product_id": "73e10325-c58f-419c-b7df-81142f77d154",
+                    "title": "Nike Air Max Pre-Day Optimism (Women's)",
+                    "brand": "Nike",
+                    "product_type": "sneakers",
+                    "style_id": "DO6716-700",
+                    "url_key": "nike-air-max-pre-day-optimism-w",
+                    "retail_price": 140.0,
+                    "release_date": "2020-12-11T00:00:00",
+                    "created_at": "2024-11-03T10:00:00",
+                    "updated_at": "2024-11-03T10:00:00"
+                },
+                "variants": [
+                    {
+                        "id": "507f1f77bcf86cd799439012",
+                        "variant_id": "23687534-53ce-4e14-a16a-5f3c66a393d1",
+                        "product_id": "73e10325-c58f-419c-b7df-81142f77d154",
+                        "variant_name": "Nike-Air-Max-Pre-Day-Optimism-W:0",
+                        "variant_value": "5W",
+                        "upc": "195244883486",
+                        "created_at": "2024-11-03T10:00:00",
+                        "updated_at": "2024-11-03T10:00:00"
+                    },
+                    {
+                        "id": "507f1f77bcf86cd799439013",
+                        "variant_id": "ab123456-78cd-90ef-1234-567890abcdef",
+                        "product_id": "73e10325-c58f-419c-b7df-81142f77d154",
+                        "variant_name": "Nike-Air-Max-Pre-Day-Optimism-W:0",
+                        "variant_value": "6W",
+                        "upc": "195244883487",
+                        "created_at": "2024-11-03T10:00:00",
+                        "updated_at": "2024-11-03T10:00:00"
+                    }
+                ]
+            }
+        }
+
+
+class GetAllProductsResponse(BaseModel):
+    """Schema for get all products response with pagination info."""
+    products: List[ProductWithVariantsResponse] = Field(..., description="List of products with their variants")
+    total: int = Field(..., description="Total number of products returned")
+    skip: int = Field(..., description="Number of products skipped")
+    limit: int = Field(..., description="Maximum number of products requested")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "products": [
+                    {
+                        "product": {
+                            "id": "507f1f77bcf86cd799439011",
+                            "product_id": "73e10325-c58f-419c-b7df-81142f77d154",
+                            "title": "Nike Air Max Pre-Day Optimism (Women's)",
+                            "brand": "Nike",
+                            "product_type": "sneakers",
+                            "style_id": "DO6716-700",
+                            "url_key": "nike-air-max-pre-day-optimism-w",
+                            "retail_price": 140.0,
+                            "release_date": "2020-12-11T00:00:00",
+                            "created_at": "2024-11-03T10:00:00",
+                            "updated_at": "2024-11-03T10:00:00"
+                        },
+                        "variants": [
+                            {
+                                "id": "507f1f77bcf86cd799439012",
+                                "variant_id": "23687534-53ce-4e14-a16a-5f3c66a393d1",
+                                "product_id": "73e10325-c58f-419c-b7df-81142f77d154",
+                                "variant_name": "Nike-Air-Max-Pre-Day-Optimism-W:0",
+                                "variant_value": "5W",
+                                "upc": "195244883486",
+                                "created_at": "2024-11-03T10:00:00",
+                                "updated_at": "2024-11-03T10:00:00"
+                            }
+                        ]
+                    }
+                ],
+                "total": 1,
+                "skip": 0,
+                "limit": 100
+            }
+        }

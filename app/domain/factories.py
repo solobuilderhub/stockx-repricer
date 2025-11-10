@@ -89,7 +89,18 @@ class ProductFactory:
         Returns:
             Product domain entity
         """
-        return Product.from_dict(db_data)
+        # Remove MongoDB-specific fields
+        clean_data = {k: v for k, v in db_data.items() if k not in ['id', '_id']}
+
+        # Convert retail_price from float to Money object if present
+        if 'retail_price' in clean_data and clean_data['retail_price'] is not None:
+            if isinstance(clean_data['retail_price'], (int, float)):
+                clean_data['retail_price'] = Money(
+                    amount=Decimal(str(clean_data['retail_price'])),
+                    currency_code='USD'
+                )
+
+        return Product.from_dict(clean_data)
 
 
 class VariantFactory:
@@ -163,7 +174,10 @@ class VariantFactory:
         Returns:
             Variant domain entity
         """
-        return Variant.from_dict(db_data)
+        # Remove MongoDB-specific fields and Beanie Link fields
+        clean_data = {k: v for k, v in db_data.items() if k not in ['id', '_id', 'product']}
+
+        return Variant.from_dict(clean_data)
 
 
 class ListingFactory:
