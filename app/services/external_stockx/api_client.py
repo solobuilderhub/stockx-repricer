@@ -3,7 +3,7 @@ External StockX Market Data API Client.
 Handles requests to the external StockX data API for market data like sales, bids, asks.
 """
 import httpx
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from app.core.logging import LoggerMixin
 from app.core.exceptions import APIClientException
 from app.core.config import settings
@@ -34,7 +34,7 @@ class ExternalStockXClient(LoggerMixin):
         self,
         method: str,
         endpoint: str,
-        json: Dict[str, Any] = None
+        json: Dict[str, Any] = {}
     ) -> Dict[str, Any]:
         """
         Make HTTP request to external API.
@@ -184,8 +184,8 @@ class ExternalStockXClient(LoggerMixin):
         product_id: str,
         is_variant: bool = True,
         intervals: int = 400,
-        start_date: str = None,
-        end_date: str = None
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Fetch historical sales data for a StockX product or variant.

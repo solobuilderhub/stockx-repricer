@@ -1,7 +1,6 @@
 """Enhanced logging configuration for the application."""
 import logging
 import sys
-from typing import Any
 
 from app.core.config import settings
 

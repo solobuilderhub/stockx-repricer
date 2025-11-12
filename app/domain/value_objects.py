@@ -5,7 +5,7 @@ Value objects are immutable and compared by their values, not identity.
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
-from pydantic import BaseModel, Field, validator, field_validator
+from pydantic import BaseModel, Field, field_validator
 from enum import Enum
 
 

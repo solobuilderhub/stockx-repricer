@@ -143,17 +143,6 @@ class ProductAggregate:
 
     # Market data management
 
-    def update_all_market_data(self, market_data_map: Dict[VariantId, 'MarketData']) -> None:
-        """
-        Update market data for multiple variants.
-
-        Args:
-            market_data_map: Dictionary mapping variant IDs to market data
-        """
-        for variant_id, market_data in market_data_map.items():
-            if variant_id in self._variants:
-                self._variants[variant_id].update_market_data(market_data)
-
     def get_variants_with_stale_market_data(self, max_age_seconds: int = 3600) -> List[Variant]:
         """
         Get variants that need market data refresh.

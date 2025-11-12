@@ -12,7 +12,7 @@ class StockXAuthService(LoggerMixin):
     """Service for handling StockX OAuth authentication."""
 
     def __init__(self):
-        self.auth_url = settings.stockx_auth_url
+        self.auth_url = settings.stockx_auth_url or ""
         self.client_id = settings.stockx_client_id
         self.client_secret = settings.stockx_client_secret
         self.refresh_token = settings.stockx_refresh_token
@@ -23,7 +23,7 @@ class StockXAuthService(LoggerMixin):
         self._access_token: Optional[str] = None
         self._token_expiry: Optional[datetime] = None
 
-    async def get_access_token(self, force_refresh: bool = False) -> str:
+    async def get_access_token(self, force_refresh: bool = False) -> Optional[str]:
         """Get a valid access token, refreshing if necessary.
 
         Args:

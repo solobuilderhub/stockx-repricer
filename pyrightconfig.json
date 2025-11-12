@@ -1,0 +1,25 @@
+{
+    "include": [
+        "app"
+    ],
+    "exclude": [
+        "**/__pycache__",
+        "**/node_modules",
+        "venv"
+    ],
+    "extraPaths": [
+        "."
+    ],
+    "pythonVersion": "3.12",
+    "pythonPlatform": "Windows",
+    "typeCheckingMode": "basic",
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false,
+    "reportUnusedImport": true,
+    "reportDuplicateImport": true,
+    "reportWildcardImportFromLibrary": false,
+    "stubPath": "",
+    "venvPath": ".",
+    "venv": "venv"
+}
+

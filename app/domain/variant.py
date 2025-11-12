@@ -4,7 +4,7 @@ Variant domain entity.
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator
-from app.domain.value_objects import VariantId, ProductId, UPC, MarketData
+from app.domain.value_objects import VariantId, ProductId, UPC, MarketData, Money
 
 
 class Variant(BaseModel):
@@ -86,13 +86,13 @@ class Variant(BaseModel):
         age = (datetime.utcnow() - self.market_data.snapshot_time).total_seconds()
         return age > max_age_seconds
 
-    def get_lowest_ask(self) -> Optional['Money']:
+    def get_lowest_ask(self) -> Optional[Money]:
         """Get lowest ask from market data if available."""
         if self.market_data:
             return self.market_data.lowest_ask
         return None
 
-    def get_highest_bid(self) -> Optional['Money']:
+    def get_highest_bid(self) -> Optional[Money]:
         """Get highest bid from market data if available."""
         if self.market_data:
             return self.market_data.highest_bid

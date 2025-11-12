@@ -5,8 +5,6 @@ Handles creating products and variants from StockX data.
 from fastapi import APIRouter, HTTPException, status, Depends
 from app.schemas.product import (
     CreateProductRequest,
-    CreateProductVariantRequest,
-    CreateProductVariantResponse,
     ProductResponseSchema,
     VariantResponseSchema,
     AddVariantRequest,

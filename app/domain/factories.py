@@ -6,7 +6,7 @@ ensuring all business rules and validations are applied.
 """
 from datetime import datetime
 from decimal import Decimal
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from app.domain.product import Product
 from app.domain.variant import Variant
 from app.domain.listing import Listing
@@ -298,47 +298,6 @@ class ListingFactory:
             Listing domain entity
         """
         return Listing.from_dict(db_data)
-
-    @staticmethod
-    def create_new(
-        variant_id: str,
-        amount: str,
-        currency_code: str = 'USD',
-        inventory_type: str = 'STANDARD',
-        quantity: int = 1
-    ) -> Listing:
-        """
-        Create a new listing for submission to StockX.
-
-        Args:
-            variant_id: Variant UUID
-            amount: Price as string
-            currency_code: Currency code
-            inventory_type: Inventory type
-            quantity: Quantity to list
-
-        Returns:
-            New Listing entity in PENDING status
-
-        Raises:
-            ValueError: If validation fails
-        """
-        import uuid
-
-        return Listing(
-            listing_id=str(uuid.uuid4()),  # Generate temporary ID
-            variant_id=VariantId(value=variant_id),
-            product_id=None,  # Will be set later
-            amount=Money(amount=Decimal(amount), currency_code=currency_code),
-            status=ListingStatus.PENDING,
-            inventory_type=InventoryType(inventory_type),
-            quantity=quantity,
-            ask_id=None,
-            ask_expires_at=None,
-            batch_id=None,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
-        )
 
 
 class MarketDataFactory:

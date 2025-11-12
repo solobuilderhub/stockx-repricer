@@ -17,7 +17,11 @@ async def test_token():
     """
     try:
         access_token = await auth_service.get_access_token()
-
+        if access_token is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to obtain access token"
+            )
         # Don't return the full token for security, just confirmation
         token_preview = f"{access_token[:10]}...{access_token[-10:]}" if len(access_token) > 20 else "***"
 
@@ -52,6 +56,12 @@ async def refresh_token():
 
         # Get fresh token
         access_token = await auth_service.get_access_token(force_refresh=True)
+
+        if access_token is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to refresh access token"
+            )
 
         token_preview = f"{access_token[:10]}...{access_token[-10:]}" if len(access_token) > 20 else "***"
 

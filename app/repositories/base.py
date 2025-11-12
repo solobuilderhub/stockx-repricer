@@ -1,7 +1,7 @@
 """Base repository with common CRUD operations."""
-from typing import Generic, TypeVar, Type, Optional, List
+from typing import Generic, TypeVar, Type, Optional, List, Any
 from beanie import Document
-from app.core.exceptions import DataNotFoundException, DatabaseException
+from app.core.exceptions import DatabaseException
 from app.core.logging import LoggerMixin
 
 T = TypeVar("T", bound=Document)
@@ -54,7 +54,7 @@ class BaseRepository(Generic[T], LoggerMixin):
             self.logger.error(f"Error fetching {self.model.__name__} by id {document_id}: {str(e)}")
             return None
 
-    async def get_by_field(self, field: str, value: any) -> Optional[T]:
+    async def get_by_field(self, field: str, value: Any) -> Optional[T]:
         """Get a document by a specific field value.
 
         Args:

@@ -4,7 +4,7 @@
 class StockXRepricerException(Exception):
     """Base exception for all application-specific exceptions."""
 
-    def __init__(self, message: str, details: dict = None):
+    def __init__(self, message: str, details: dict = {}):
         self.message = message
         self.details = details or {}
         super().__init__(self.message)

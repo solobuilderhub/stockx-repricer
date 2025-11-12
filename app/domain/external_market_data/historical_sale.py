@@ -3,7 +3,6 @@ HistoricalSale domain entity.
 Represents a historical sales data point for a StockX product variant.
 """
 from datetime import datetime
-from typing import Optional
 from pydantic import BaseModel, Field
 
 

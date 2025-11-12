@@ -1,7 +1,6 @@
 """External API client service for fetching StockX data."""
 import httpx
-from typing import List, Dict, Any, Optional
-from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
 
 from app.core.config import settings
 from app.core.exceptions import APIClientException

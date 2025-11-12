@@ -3,8 +3,7 @@ StockX API response mapper.
 Transforms raw API responses into domain models.
 """
 from datetime import datetime
-from typing import Dict, Any, Optional, List
-from decimal import Decimal
+from typing import Dict, Any, Optional
 from app.core.exceptions import APIClientException
 from app.domain import (
     Product,
@@ -15,13 +14,6 @@ from app.domain import (
     VariantFactory,
     ListingFactory,
     MarketDataFactory,
-    Money,
-    ProductId,
-    VariantId,
-    StyleId,
-    UPC,
-    ListingStatus,
-    InventoryType
 )
 
 

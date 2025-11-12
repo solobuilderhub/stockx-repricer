@@ -95,7 +95,7 @@ class StockXService(LoggerMixin):
             self.logger.error(f"Unexpected error fetching product {product_id}: {e}")
             raise APIClientException(f"Failed to fetch product: {e}")
 
-    async def get_variant(self, variant_id: str, product_id: str = None) -> Variant:
+    async def get_variant(self, variant_id: str, product_id: str) -> Variant:
         """
         Fetch a single variant data from StockX API and transform to Variant domain model.
 
@@ -159,7 +159,7 @@ class StockXService(LoggerMixin):
                 raise APIClientException("Expected variant API response to be a list")
 
             # Transform each variant to domain model
-            variants = [self.mapper.to_variant(variant_data) for variant_data in api_response]
+            variants = [self.mapper.to_variant(variant_data) for variant_data in api_response if isinstance(variant_data, dict)]
 
             self.logger.info(
                 f"Successfully fetched and transformed {len(variants)} variants for product {product_id}"

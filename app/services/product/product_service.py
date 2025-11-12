@@ -10,6 +10,8 @@ from app.core.logging import LoggerMixin
 from app.core.exceptions import APIClientException, DatabaseException
 from app.models.product import Product
 from app.models.variant import Variant
+from app.domain.product import Product as ProductDomain
+from app.domain.variant import Variant as VariantDomain
 
 
 class ProductService(LoggerMixin):
@@ -28,7 +30,7 @@ class ProductService(LoggerMixin):
     async def create_product(
         self,
         product_id: str
-    ) -> Tuple['app.domain.Product', str]:
+    ) -> Tuple[ProductDomain, str]:
         """
         Create a product by fetching data from StockX API.
 
@@ -100,7 +102,7 @@ class ProductService(LoggerMixin):
         self,
         product_id: str,
         variant_id: str
-    ) -> Tuple['app.domain.Product', 'app.domain.Variant']:
+    ) -> Tuple[ProductDomain, VariantDomain]:
         """
         Create a product and variant by fetching data from StockX API.
 
@@ -201,7 +203,7 @@ class ProductService(LoggerMixin):
         self,
         product_id: str,
         variant_id: str
-    ) -> Tuple['app.domain.Variant', str]:
+    ) -> Tuple[VariantDomain, str]:
         """
         Add a new variant to an existing product.
 
@@ -281,7 +283,7 @@ class ProductService(LoggerMixin):
         self,
         product_id: str,
         variant_ids: List[str]
-    ) -> Tuple['app.domain.Product', List['app.domain.Variant'], str, List[str]]:
+    ) -> Tuple[ProductDomain, List[VariantDomain], str, List[str]]:
         """
         Create a product with multiple variants by fetching data from StockX API.
 
