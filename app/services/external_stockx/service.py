@@ -3,6 +3,7 @@ External StockX Service Wrapper.
 Orchestrates API calls to external service and transforms responses into domain models.
 """
 from typing import List, Optional
+import json
 from app.services.external_stockx.api_client import external_stockx_client
 from app.services.external_stockx.mapper import ExternalStockXMapper
 from app.core.logging import LoggerMixin
@@ -176,7 +177,7 @@ class ExternalStockXService(LoggerMixin):
             api_response = await self.api_client.fetch_historical_sales_data(
                 product_id, is_variant, intervals, start_date, end_date
             )
-
+            self.logger.info(f"API response: {json.dumps(api_response, indent=4)}")
             # Transform to domain models
             historical_sales = self.mapper.to_historical_sales(api_response, product_id, is_variant)
 

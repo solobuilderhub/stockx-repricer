@@ -7,10 +7,12 @@ from app.core.config import settings
 from app.core.logging import setup_logging, get_logger
 from app.db.mongodb import db
 from app.models.product import Product
-from app.models.historical import HistoricalPrice
 from app.models.variant import Variant
+from app.models.sale import Sale
+from app.models.historical_pricing import HistoricalPricing
 from app.api.routes.stockx import stockx_routes, auth as stockx_auth, external_market_data_routes
 from app.api.routes.product import product_routes
+from app.api.routes.market_data import market_data_routes
 from app.api.middleware import logging_middleware, setup_exception_handlers
 
 # Setup logging
@@ -25,7 +27,7 @@ async def lifespan(app: FastAPI):
     logger.info("Application starting up...")
     try:
         await db.connect_to_database()
-        await db.init_beanie_models([Product, HistoricalPrice, Variant])
+        await db.init_beanie_models([Product, Variant, Sale, HistoricalPricing])
         logger.info("Database initialized successfully")
     except Exception as e:
         logger.error(f"Failed to initialize database: {str(e)}")
@@ -66,6 +68,7 @@ app.include_router(stockx_auth.router)
 app.include_router(stockx_routes)
 app.include_router(external_market_data_routes)
 app.include_router(product_routes)
+app.include_router(market_data_routes.router, prefix="/api")
 
 
 
